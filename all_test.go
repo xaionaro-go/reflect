@@ -260,14 +260,14 @@ func Test_Traverse(t *testing.T) {
 		processed bool
 	}
 	ma := map[string]*args{
-		"String":   &args{"str", false},
-		"Int":      &args{2, false},
-		"Map[1]":   &args{true, false},
-		"Map[2]":   &args{false, false},
-		"Slice[0]": &args{"one", false},
-		"Slice[1]": &args{"two", false},
-		"M.I":      &args{int64(10000000000), false},
-		"*(PInt)":  &args{0, false},
+		"String":   {"str", false},
+		"Int":      {2, false},
+		"Map[1]":   {true, false},
+		"Map[2]":   {false, false},
+		"Slice[0]": {"one", false},
+		"Slice[1]": {"two", false},
+		"M.I":      {int64(10000000000), false},
+		"*(PInt)":  {0, false},
 	}
 
 	process := func(value reflect.Value, state *State, field *reflect.StructField) error {
@@ -291,7 +291,7 @@ func Test_Traverse(t *testing.T) {
 	// Check returning error
 	st := struct {
 		Slice []map[int]mini
-	}{[]map[int]mini{map[int]mini{1: mini{1}}}}
+	}{[]map[int]mini{{1: {1}}}}
 
 	process = func(value reflect.Value, state *State, field *reflect.StructField) error {
 		if field != nil && field.Name == "I" {
@@ -322,9 +322,9 @@ func Test_TraverseFields(t *testing.T) {
 		processed bool
 	}
 	ma := map[string]*args{
-		"String": &args{"str", false},
-		"Int":    &args{2, false},
-		"M.I":    &args{int64(10000000000), false},
+		"String": {"str", false},
+		"Int":    {2, false},
+		"M.I":    {int64(10000000000), false},
 	}
 
 	process := func(value reflect.Value, state *State, field *reflect.StructField) error {
