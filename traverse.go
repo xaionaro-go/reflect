@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// State
+// State  stores the traverse state.
 type State struct {
 	Path  string
 	Depth int
