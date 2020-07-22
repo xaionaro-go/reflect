@@ -122,17 +122,32 @@ func AssignValue(dst, src reflect.Value) (err error) {
 		return AssignStringToValue(dst, src.String())
 	}
 
-	if dst.Kind() == reflect.Ptr && src.Type().ConvertibleTo(dst.Type().Elem()) {
-		if dst.IsNil() {
-			dst = reflect.New(dst.Type().Elem())
+	dstValue, dstNew := dst, dst
+	for dstValue.Kind() == reflect.Ptr {
+		if dstValue.IsNil() {
+			dstValue.Set(reflect.New(dstValue.Type().Elem()))
 		}
-		dst = dst.Elem()
-	} else if !src.Type().ConvertibleTo(dst.Type()) {
-		return fmt.Errorf("Value of type \"%s\" cannot be converted to type \"%s\"", src.Type().Name(), dst.Type().Name())
+		dstValue = dstValue.Elem()
 	}
-	value := src.Convert(dst.Type())
-	dst.Set(value)
-	return nil
+	if src.Type().ConvertibleTo(dstValue.Type()) {
+		dstValue.Set(src.Convert(dstValue.Type()))
+		dst.Set(dstNew)
+		return nil
+	}
+	if dstType := dstValue.Type(); src.Kind() == reflect.Slice && dstType.Kind() == reflect.Slice {
+		i := src.Interface()
+		println(i)
+		s := reflect.MakeSlice(dstType, src.Len(), src.Len())
+		for i := 0; i < src.Len(); i++ {
+			if err := AssignValue(s.Index(i), src.Index(i)); err != nil {
+				return err
+			}
+		}
+		dstValue.Set(s)
+		dst.Set(dstNew)
+		return nil
+	}
+	return fmt.Errorf("value of type \"%s\" cannot be converted to type \"%s\"", src.Type().Name(), dstValue.Type().Name())
 }
 
 // Assign tries to convert source to destination. If possible, it converts the string to the destination type.

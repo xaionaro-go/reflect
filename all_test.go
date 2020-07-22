@@ -128,6 +128,7 @@ func Test_AssignValue(t *testing.T) {
 	var d time.Duration
 	var ip net.IP
 	var pi *int
+	var si []int
 
 	b2 := true
 
@@ -228,6 +229,8 @@ func Test_AssignValue(t *testing.T) {
 		{args{&pi, 19, nil}, false}, // Assign to nil pointer
 		{args{&pi, 20, nil}, false}, // Assign to allocated pointer
 
+		{args{&si, []string{"3", "2", "1"}, []int{3, 2, 1}}, false},
+
 		{args{"", "unassignable", nil}, true},
 		{args{new(struct{}), "hi", nil}, true},
 	}
@@ -239,6 +242,7 @@ func Test_AssignValue(t *testing.T) {
 		} else if err == nil && tt.args.expected != nil {
 			checkEqual(t, dst.Interface(), tt.args.expected)
 		}
+		t.Logf("src: %v; dst: %v", tt.args.src, tt.args.dst)
 	}
 }
 
