@@ -46,6 +46,10 @@ func traverseValue(v reflect.Value, state *State, field *reflect.StructField, pr
 	//depth++
 
 	switch v.Kind() {
+	case reflect.Interface:
+		if err := traverseValue(v.Elem(), state.next("unwrapIface("+state.Path+")"), nil, process); err != nil {
+			return err
+		}
 	case reflect.Struct:
 		structType := v.Type()
 		for i := 0; i < structType.NumField(); i++ {
